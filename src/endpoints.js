@@ -5,6 +5,21 @@ const contextManager = require("./context-manager");
 
 const positiveResponses = [ "yes", "y", "no'nt", "yea", "sure"]
 const negativeResponses = [ "no", "n", "yesn't", "nay"]
+const commands = [ 	"(t) test",
+					"(s) state",
+					"(a) add-member [user] [role]",
+					"(r) remove-member [user] [role]",
+					"(p) change-admin [user] [role]",
+					"(v) vote [yes/no] <user>",
+					"(c) create-channel [role]",
+					"(cv) cancel-vote",
+					"(ucp) change-user-context-admin [user] [role]",
+					"(uca) change-user-context-add-user [user] [role]",
+					"(ucr) change-user-context-remove-user [user] [role]",
+					"(ucv) view-user-context [user] [role]",
+					"(rs) reset",
+					"(d) sync-discord-roles [user] [role]"
+				]
 
 var voteInProgress = false;
 var state = null;
@@ -18,15 +33,15 @@ function messageHandler(message) {
 	const channel = message.channel.name
 	const author = message.author
 
-	if (command === "test") {
+	if (command === "test" || command === "t") {
 		return message.reply("Status: OK")
 	}
 
-	else if (command === "state") {
+	else if (command === "state" || command === "s") {
 		return message.reply(JSON.stringify(state, null, 2))
 	}
 
-	else if (command === "create-channel") {
+	else if (command === "create-channel" || command === "c") {
 		if(args[0] === undefined){
 			return message.reply("Please provide a channel name");
 		}
@@ -35,7 +50,7 @@ function messageHandler(message) {
 		return message.reply("Created channel " + args[0])
 	}
 
-	else if (command === "add-member") {
+	else if (command === "add-member" || command === "a") {
 		let member = message.mentions.members.first() || message.guild.members.get(args[0])
 		let role = message.guild.roles.find(role => role.name === args[1])
 		let channel = {
@@ -55,7 +70,7 @@ function messageHandler(message) {
 		return message.reply("Vote started to add member " + member.id)
 	}
 
-	else if (command === "remove-member") {
+	else if (command === "remove-member" || command === "r") {
 		let member = message.mentions.members.first() || message.guild.members.get(args[0])
 		let role = message.guild.roles.find(role => role.name === args[1])
 		let channel = {
@@ -75,7 +90,7 @@ function messageHandler(message) {
 		return message.reply("Vote started to remove member " + member.id)
 	}
 
-	else if (command === "change-admin") {
+	else if (command === "change-admin" || command === "p") {
 		let member = message.mentions.members.first() || message.guild.members.get(args[0])
 		let role = message.guild.roles.find(role => role.name === args[1])
 		let channel = {
@@ -95,7 +110,7 @@ function messageHandler(message) {
 		return message.reply("Vote started to promote member" + member.id)
 	}
 
-	else if (command === "vote") {
+	else if (command === "vote" || command === "v") {
 		let actor = author
 		let member = message.mentions.members.first()
 		if(member) {
@@ -158,7 +173,7 @@ function messageHandler(message) {
 		}
 	}
 
-	else if (command === "change-user-context-admin") {
+	else if (command === "change-user-context-admin"  || command === "ucp") {
 		let member = message.mentions.members.first() || message.guild.members.get(args[0])
 		let role = message.guild.roles.find(role => role.name === args[1])
 		if (!role) {
@@ -170,7 +185,7 @@ function messageHandler(message) {
 		return message.reply("Encountered error changing admin to user " + member.id)
 	}
 
-	else if (command === "change-user-context-add-member") {
+	else if (command === "change-user-context-add-member" || command === "uca") {
 		let member = message.mentions.members.first() || message.guild.members.get(args[0])
 		let role = message.guild.roles.find(role => role.name === args[1])
 		if (!role) {
@@ -182,7 +197,7 @@ function messageHandler(message) {
 		return message.reply("Encountered error adding user " + member.id)
 	}
 
-	else if (command === "change-user-context-remove-member") {
+	else if (command === "change-user-context-remove-member" || command === "ucr") {
 		let member = message.mentions.members.first() || message.guild.members.get(args[0])
 		let role = message.guild.roles.find(role => role.name === args[1])
 		if (!role) {
@@ -194,7 +209,7 @@ function messageHandler(message) {
 		return message.reply("Encountered error removing user " + member.id)
 	}
 
-	else if (command === "view-user-context") {
+	else if (command === "view-user-context" || command === "ucv") {
 		let member = message.mentions.members.first() || message.guild.members.get(args[0])
 		let role = message.guild.roles.find(role => role.name === args[1])
 		if (!role) {
@@ -207,18 +222,18 @@ function messageHandler(message) {
 		return message.reply(JSON.stringify(currentUserContext, null, 2))
 	}
 	
-	else if (command === "cancel-vote") {
+	else if (command === "cancel-vote" || command === "cv") {
 		state = null;
 		voteInProgress = false;
 		return message.reply("Vote cancelled.")
 	}
 
-	else if (command === "reset") {
+	else if (command === "reset" || command === "rs") {
 		contextManager.save_all_contexts([])
 		tr.reset(message.guild)
 	}
 
-	else if (command === "sync-discord-roles") {
+	else if (command === "sync-discord-roles" || command === "d") {
 		let member = message.mentions.members.first() || message.guild.members.get(args[0])
 		let role = message.guild.roles.find(role => role.name === args[1])
 		if (!role) {
@@ -233,22 +248,9 @@ function messageHandler(message) {
 	}
 	
 	else {
-		return message.reply("Available commands: \n\
-		test \n\
-		state \n\
-		create-channel [role]\n\
-		add-member [user] [role]\n\
-		remove-member [user] [role]\n\
-		change-admin [user] [role]\n\
-		vote [yes/no]\n\
-		change-user-context-admin [user] [role]\n\
-		change-user-context-add-member [user] [role]\n\
-		change-user-context-remove-member [user] [role]\n\
-		view-user-context [user] [role]\n\
-		cancel-vote\n\
-		reset\n\
-		sync-discord-roles [user] [role]\n"
-		)
+		var helpString = "Available commands:\n"
+		commands.forEach((singleCmd) => helpString = helpString + singleCmd + "\n")
+		return message.reply(helpString)
 	}
 }
 
