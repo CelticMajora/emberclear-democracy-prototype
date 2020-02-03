@@ -5,15 +5,34 @@ const client = new Discord.Client();
 
 class TaskRunnerClass {
 
+    constructor(){
+        this.colors = [16711680, 65280, 255, 16776960, 65535, 16711935]
+        this.availableColors = [16711680, 65280, 255, 16776960, 65535, 16711935]
+    }
+
     createChannel(guild, roleName) {
         var promises = []
         var newRole = undefined
-        promises.push(guild.createRole({
-            name: roleName
-        }).then(role => newRole = role))
-        promises.push(guild.createRole({
-            name: "admin-" + roleName
-        }))
+        if(this.availableColors.length !== 0){
+            var color = this.availableColors[Math.floor(Math.random() * this.availableColors.length)]
+            promises.push(guild.createRole({
+                name: roleName,
+                color: color
+            }).then(role => newRole = role))
+            promises.push(guild.createRole({
+                name: "admin-" + roleName,
+                color: color
+            }))
+            this.availableColors = this.availableColors.filter((colorNumber) => colorNumber !== color)
+        }
+        else{
+            promises.push(guild.createRole({
+                name: roleName
+            }).then(role => newRole = role))
+            promises.push(guild.createRole({
+                name: "admin-" + roleName
+            }))
+        }        
         return Promise.allSettled(promises).then(() => newRole)
     }
 
@@ -43,7 +62,12 @@ class TaskRunnerClass {
         console.log('clearing roles from ' + guild.name)
         var promises = []
         guild.roles.forEach((role) => {
-            promises.push(role.delete().then(deleted => console.log('deleted role ' + deleted.name)))
+            promises.push(role.delete().then(deleted => {
+                if(this.colors.includes(deleted.color) && !this.availableColors.includes(deleted.color)){
+                    this.availableColors.push(deleted.color)
+                }                
+                console.log('deleted role ' + deleted.name)
+            }))
         })
         return Promise.allSettled(promises)
     }
