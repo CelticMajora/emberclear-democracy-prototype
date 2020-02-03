@@ -98,17 +98,17 @@ class ContextManagerClass {
 						}						
 					}
 				}
+				this.get_relevant_user_contexts(contexts, channel_uid, author_uid).forEach((userContext) => {
+					//TODO replace with chain verification
+					var isAdminMatch = userContext.user_context.admin === authorContext.user_context.admin
+					var membersDiff = userContext.user_context.members
+						.filter(member => !authorContext.user_context.members.includes(member))
+						.concat(authorContext.user_context.members.filter(member => !userContext.user_context.members.includes(member)))
+					if(isAdminMatch && membersDiff.length === 1 && membersDiff[0] === user_uid && authorContext.user_context.members.includes(user_uid)){
+						userContext.user_context = JSON.parse(JSON.stringify(authorContext.user_context))					
+					}
+				})
 			}
-			this.get_relevant_user_contexts(contexts, channel_uid, author_uid).forEach((userContext) => {
-				//TODO replace with chain verification
-				var isAdminMatch = userContext.user_context.admin === authorContext.user_context.admin
-				var membersDiff = userContext.user_context.members
-					.filter(member => !authorContext.user_context.members.includes(member))
-					.concat(authorContext.user_context.members.filter(member => !userContext.user_context.members.includes(member)))
-				if(isAdminMatch && membersDiff.length === 1 && membersDiff[0] === user_uid && authorContext.user_context.members.includes(user_uid)){
-					userContext.user_context = JSON.parse(JSON.stringify(authorContext.user_context))					
-				}
-			})
 		}
 		this.save_all_contexts(contexts)
 	}
