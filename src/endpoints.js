@@ -129,9 +129,9 @@ function messageHandler(message) {
 		// invoke democracy vote
 		var response = args[0]
 		var vote;
-		if(positiveResponses.contains(response)) {
+		if(positiveResponses.includes(response)) {
 			vote = true
-		} else if (negativeResponses.contains(response)) {
+		} else if (negativeResponses.includes(response)) {
 			vote = false
 		} else {
 			return message.reply("Please vote yes or no.")
