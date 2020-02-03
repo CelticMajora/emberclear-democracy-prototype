@@ -94,7 +94,7 @@ Cancel the vote currently in progress
 Resets all data
 
 ```
-?sync-discord-roles [member] [channel]
-?d [member] [channel]
+?sync-discord-roles [member]
+?d [member]
 ```
 Syncs the discord roles with a given user's context

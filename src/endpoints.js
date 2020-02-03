@@ -18,7 +18,7 @@ const commands = [ 	"(t) test",
 					"(ucr) change-user-context-remove-user [user] [role]",
 					"(ucv) view-user-context [user] [role]",
 					"(rs) reset",
-					"(d) sync-discord-roles [user] [role]"
+					"(d) sync-discord-roles [user]"
 				]
 
 var voteInProgress = false;
