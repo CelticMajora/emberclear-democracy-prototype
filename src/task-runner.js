@@ -37,10 +37,12 @@ class TaskRunnerClass {
     }
 
     addUser(member, role) {
+        console.log('Giving ' + role.name + ' discord role to ' + member.id)
         return member.addRole(role)
     }
     
     removeUser(member, role) {
+        console.log('Removing ' + role.name + ' discord role to ' + member.id)
         return member.removeRole(role)
     }
     
@@ -53,6 +55,7 @@ class TaskRunnerClass {
             if(currentAdmin) {
                 promises.push(currentAdmin.removeRole(adminRole))
             }
+            console.log('Giving admin ' + role.name + ' discord role to ' + member.id)
             promises.push(member.addRole(adminRole))
         }
         return Promise.allSettled(promises)
@@ -65,7 +68,7 @@ class TaskRunnerClass {
             promises.push(role.delete().then(deleted => {
                 if(this.colors.includes(deleted.color) && !this.availableColors.includes(deleted.color)){
                     this.availableColors.push(deleted.color)
-                }                
+                }
                 console.log('deleted role ' + deleted.name)
             }))
         })
@@ -74,7 +77,7 @@ class TaskRunnerClass {
 
     setStatus(guild, member, role) {
         return this.reset(guild).then(() => {
-            this.createChannel(guild, role.name).then(newRole => {
+            return this.createChannel(guild, role.name).then(newRole => {
                 var userContext = contextManager.get_user_context(newRole.name, member.id)
                 if(userContext !== undefined){
                     const admin = guild.members.find((member) => member.id === userContext.admin)
