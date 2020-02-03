@@ -17,20 +17,24 @@ class TaskRunnerClass {
             var color = this.availableColors[Math.floor(Math.random() * this.availableColors.length)]
             promises.push(guild.createRole({
                 name: roleName,
-                color: color
+                color: color,
+                hoist: true
             }).then(role => newRole = role))
             promises.push(guild.createRole({
                 name: "admin-" + roleName,
-                color: color
+                color: color,
+                hoist: true
             }))
             this.availableColors = this.availableColors.filter((colorNumber) => colorNumber !== color)
         }
         else{
             promises.push(guild.createRole({
-                name: roleName
+                name: roleName,
+                hoist: true
             }).then(role => newRole = role))
             promises.push(guild.createRole({
-                name: "admin-" + roleName
+                name: "admin-" + roleName,
+                hoist: true
             }))
         }        
         return Promise.allSettled(promises).then(() => newRole)
