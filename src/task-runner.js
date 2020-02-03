@@ -36,7 +36,7 @@ class TaskRunnerClass {
                 name: "admin-" + roleName,
                 hoist: true
             }))
-        }        
+        }
         return Promise.allSettled(promises).then(() => newRole)
     }
 
@@ -79,22 +79,28 @@ class TaskRunnerClass {
         return Promise.allSettled(promises)
     }
 
-    setStatus(guild, member, role) {
+    setStatus(guild, member) {
         return this.reset(guild).then(() => {
-            return this.createChannel(guild, role.name).then(newRole => {
-                var userContext = contextManager.get_user_context(newRole.name, member.id)
-                if(userContext !== undefined){
-                    const admin = guild.members.find((member) => member.id === userContext.admin)
-                    var promises = []
-                    promises.push(this.changeAdmin(guild, admin, newRole))
-                    userContext.members.forEach((member) => {
-                        let memberObject = guild.members.find((specificMember) => specificMember.id === member)
-                        promises.push(this.addUser(memberObject, newRole))
-                    }) 
-                    return Promise.allSettled(promises).then(() => true)
-                }
-                return Promise.resolve(false)
-            })
+            var userContexts = contextManager.get_user_channels_contexts(member.id)
+            var outerPromises = []
+            if(userContexts !== undefined){
+                userContexts.forEach((channelContext) => outerPromises.push(this.createChannel(guild, channelContext.channel).then(newRole => {
+                    var userContext = channelContext.user_context
+                    if(userContext !== undefined){
+                        const admin = guild.members.find((member) => member.id === userContext.admin)
+                        var promises = []
+                        promises.push(this.changeAdmin(guild, admin, newRole))
+                        userContext.members.forEach((member) => {
+                            let memberObject = guild.members.find((specificMember) => specificMember.id === member)
+                            promises.push(this.addUser(memberObject, newRole))
+                        }) 
+                        return Promise.allSettled(promises).then(() => true)
+                    }
+                    return Promise.resolve(false)
+                })))
+                return Promise.allSettled(outerPromises)
+            }
+            return Promise.resolve(false)
         })
     }
 }

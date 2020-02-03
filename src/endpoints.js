@@ -235,11 +235,7 @@ function messageHandler(message) {
 
 	else if (command === "sync-discord-roles" || command === "d") {
 		let member = message.mentions.members.first() || message.guild.members.get(args[0])
-		let role = message.guild.roles.find(role => role.name === args[1])
-		if (!role) {
-			return message.reply("The role does not exist or no role was provided")
-		}
-		tr.setStatus(message.guild, member, role).then((success) => {
+		tr.setStatus(message.guild, member).then((success) => {
 			if(success){
 				return message.reply("Channel roles have been synced")
 			}
