@@ -234,6 +234,15 @@ class ContextManagerClass {
 		return this.get_user_context_channel_context_with_contexts_defined(contexts, channel_uid, user_uid).user_context
 	}
 
+	get_user_channels_contexts(user_uid){
+		var contexts = this.get_all_contexts()
+		var userContext = contexts.find((context) => context.user === user_uid)
+		if(userContext !== undefined){
+			return userContext.channel_contexts
+		}
+		return undefined
+	}
+
 	get_user_context_channel_context_with_contexts_defined(contexts, channel_uid, user_uid){
 		var userContext = contexts.find((context) => context.user === user_uid)
 		if(userContext !== undefined){
