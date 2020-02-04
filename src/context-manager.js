@@ -31,6 +31,7 @@ class ContextManagerClass {
 				            	user_uid
 				          	],
 				          	"supporting_vote": undefined,
+				          	"supporting_vote_key": undefined,
 				          	"previous_chain": undefined
 			          	}
 			        }
@@ -50,8 +51,9 @@ class ContextManagerClass {
 		          		"admin": user_uid,
 		          		"members": [
 			            	user_uid
-			          	],
+			          	],			          	
 			          	"supporting_vote": undefined,
+			          	"supporting_vote_key": undefined,
 			          	"previous_chain": undefined
 		          	}
 		        }
@@ -66,6 +68,14 @@ class ContextManagerClass {
 		if(authorContext !== undefined){
 			if(!authorContext.user_context.members.includes(user_uid)){
 				authorContext.user_context.members.push(user_uid)
+				var prevChain = JSON.parse(JSON.stringify(authorContext.user_context.contextChain))
+				authorContext.user_context.contextChain = {
+					"admin": authorContext.user_context.admin,
+					"members": authorContext.user_context.members,
+					"supporting_vote": undefined,//TODO add this
+					"supporting_vote_key": author_uid,
+					"previous_chain": prevChain
+				}
 				var newMemberContext = this.get_user_context_channel_context_with_contexts_defined(contexts, channel_uid, user_uid)
 				if(newMemberContext === undefined){
 					newMemberContext = contexts.find((context) => context.user === user_uid)
@@ -88,16 +98,17 @@ class ContextManagerClass {
 						}						
 					}
 				}
+				this.get_relevant_user_contexts(contexts, channel_uid, author_uid).forEach((userContext) => {
+					//TODO replace with chain verification
+					var isAdminMatch = userContext.user_context.admin === authorContext.user_context.admin
+					var membersDiff = userContext.user_context.members
+						.filter(member => !authorContext.user_context.members.includes(member))
+						.concat(authorContext.user_context.members.filter(member => !userContext.user_context.members.includes(member)))
+					if(isAdminMatch && membersDiff.length === 1 && membersDiff[0] === user_uid && authorContext.user_context.members.includes(user_uid)){
+						userContext.user_context = JSON.parse(JSON.stringify(authorContext.user_context))					
+					}
+				})
 			}
-			this.get_relevant_user_contexts(contexts, channel_uid, author_uid).forEach((userContext) => {
-				var isAdminMatch = userContext.user_context.admin === authorContext.user_context.admin
-				var membersDiff = userContext.user_context.members
-					.filter(member => !authorContext.user_context.members.includes(member))
-					.concat(authorContext.user_context.members.filter(member => !userContext.user_context.members.includes(member)))
-				if(isAdminMatch && membersDiff.length === 1 && membersDiff[0] === user_uid && authorContext.user_context.members.includes(user_uid)){
-					userContext.user_context = JSON.parse(JSON.stringify(authorContext.user_context))					
-				}
-			})
 		}
 		this.save_all_contexts(contexts)
 	}
@@ -108,16 +119,25 @@ class ContextManagerClass {
 		if(authorContext !== undefined){
 			if(authorContext.user_context.members.includes(user_uid)){
 				authorContext.user_context.members = authorContext.user_context.members.filter((member) => member !== user_uid)
-			}
-			this.get_relevant_user_contexts(contexts, channel_uid, author_uid).forEach((userContext) => {
-				var isAdminMatch = userContext.user_context.admin === authorContext.user_context.admin
-				var membersDiff = userContext.user_context.members
-					.filter(member => !authorContext.user_context.members.includes(member))
-					.concat(authorContext.user_context.members.filter(member => !userContext.user_context.members.includes(member)))
-				if(isAdminMatch && membersDiff.length === 1 && membersDiff[0] === user_uid && userContext.user_context.members.includes(user_uid)){
-					userContext.user_context = JSON.parse(JSON.stringify(authorContext.user_context))
+				var prevChain = JSON.parse(JSON.stringify(authorContext.user_context.contextChain))
+				authorContext.user_context.contextChain = {
+					"admin": authorContext.user_context.admin,
+					"members": authorContext.user_context.members,
+					"supporting_vote": undefined,//TODO add this
+					"supporting_vote_key": author_uid,
+					"previous_chain": prevChain
 				}
-			})
+				this.get_relevant_user_contexts(contexts, channel_uid, author_uid).forEach((userContext) => {
+					//TODO replace with chain verification
+					var isAdminMatch = userContext.user_context.admin === authorContext.user_context.admin
+					var membersDiff = userContext.user_context.members
+						.filter(member => !authorContext.user_context.members.includes(member))
+						.concat(authorContext.user_context.members.filter(member => !userContext.user_context.members.includes(member)))
+					if(isAdminMatch && membersDiff.length === 1 && membersDiff[0] === user_uid && userContext.user_context.members.includes(user_uid)){
+						userContext.user_context = JSON.parse(JSON.stringify(authorContext.user_context))
+					}
+				})
+			}			
 		}
 		this.save_all_contexts(contexts)
 	}
@@ -128,16 +148,25 @@ class ContextManagerClass {
 		if(authorContext !== undefined){
 			if(authorContext.user_context.members.includes(user_uid)){
 				authorContext.user_context.admin = user_uid
-			}
-			this.get_relevant_user_contexts(contexts, channel_uid, author_uid).forEach((userContext) => {
-				var isAdminMatch = userContext.user_context.admin === authorContext.user_context.admin
-				var membersDiff = userContext.user_context.members
-					.filter(member => !authorContext.user_context.members.includes(member))
-					.concat(authorContext.user_context.members.filter(member => !userContext.user_context.members.includes(member)))
-				if(!isAdminMatch && membersDiff.length === 0){
-					userContext.user_context = JSON.parse(JSON.stringify(authorContext.user_context))
+				var prevChain = JSON.parse(JSON.stringify(authorContext.user_context.contextChain))
+				authorContext.user_context.contextChain = {
+					"admin": authorContext.user_context.admin,
+					"members": authorContext.user_context.members,
+					"supporting_vote": undefined,//TODO add this
+					"supporting_vote_key": author_uid,
+					"previous_chain": prevChain
 				}
-			})
+				this.get_relevant_user_contexts(contexts, channel_uid, author_uid).forEach((userContext) => {
+					//TODO replace with chain verification
+					var isAdminMatch = userContext.user_context.admin === authorContext.user_context.admin
+					var membersDiff = userContext.user_context.members
+						.filter(member => !authorContext.user_context.members.includes(member))
+						.concat(authorContext.user_context.members.filter(member => !userContext.user_context.members.includes(member)))
+					if(!isAdminMatch && membersDiff.length === 0){
+						userContext.user_context = JSON.parse(JSON.stringify(authorContext.user_context))
+					}
+				})
+			}			
 		}
 		this.save_all_contexts(contexts)
 	}
