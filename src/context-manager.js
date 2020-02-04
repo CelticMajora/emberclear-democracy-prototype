@@ -268,6 +268,7 @@ class ContextManagerClass {
 						userContext.active_votes[individualVoteIndex] = JSON.parse(JSON.stringify(authorContext.active_votes[currVoteIndex]))
 					}
 				})
+				//TODO check if vote is complete, then call add/remove/change-admin accordingly
 			}
 		}
 	}
