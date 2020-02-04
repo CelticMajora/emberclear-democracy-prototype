@@ -254,6 +254,24 @@ class ContextManagerClass {
 		return undefined
 	}
 
+	vote(channel_uid, author_uid, vote, vote_uid){
+		var contexts = this.get_all_contexts()
+		var authorContext = this.get_user_context_channel_context_with_contexts_defined(contexts, channel_uid, author_uid)
+		if(authorContext !== undefined){
+			var currVoteIndex = authorContext.active_votes.findIndex((voteObj) => voteObj.id === vote_uid)
+			if(currVoteIndex !== -1){
+				authorContext.active_votes[currVoteIndex] = JSON.parse(JSON.stringify(vote))
+				this.get_relevant_user_contexts(contexts, channel_uid, author_uid).forEach((userContext) => {
+					//TODO replace with vote verification
+					var individualVoteIndex = userContext.active_votes.findIndex((voteObj) => voteObj.id === vote_uid)
+					if(currVoteIndex !== -1){
+						userContext.active_votes[individualVoteIndex] = JSON.parse(JSON.stringify(authorContext.active_votes[currVoteIndex]))
+					}
+				})
+			}
+		}
+	}
+
 }
 
 const ContextManager = new ContextManagerClass()
